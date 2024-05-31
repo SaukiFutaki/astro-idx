@@ -1,0 +1,78 @@
+---
+// Component Imports
+import { Image } from "astro:assets";
+import Counter from "../components/Counter";
+
+const someProps = { count: 0 };
+
+// Full Astro Component Syntax: // https://docs.astro.build/basics/astro-components/
+const fetchPokemonData = async () => {
+  const response = await fetch("https://pokeapi.co/api/v2/pokemon/pikachu");
+  const data = await response.json();
+  return data;
+};
+
+const pokemonData : Pokemon = await fetchPokemonData();
+console.log(pokemonData);
+
+interface Pokemon {
+  forms: { name: string }[];
+  sprites: { front_default: string };
+  stats : {
+	base_stat: number;
+	stat: {
+		name: string;
+	}
+  }[]
+}
+
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      html,
+      body {
+        font-family: system-ui;
+        margin: 0;
+      }
+      body {
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <Counter {...someProps} client:visible>
+        <h1>Hello, Astro react!</h1>
+      </Counter>
+    </main>
+    <div class="grid grid-cols-3 items-center justify-center text-center p-2 gap-4">
+      <div>
+        <h1 class="border p-6 bg-black text-blue-500 font-bold">
+          {pokemonData.forms.map((form) => form.name)}
+        </h1>
+        <Image
+          src={pokemonData.sprites.front_default}
+          alt="pokemon"
+          width={200}
+          height={200}
+        />
+		<h1>
+			{pokemonData.stats.map((stat) => {
+				return (
+					<div class="flex flex-row items-center justify-center text-center ">
+						<p>{stat.stat.name} :</p>
+						<p>{stat.base_stat}</p>
+					</div>
+				)
+			})}
+		</h1>
+      </div>
+    </div>
+  </body>
+</html>
